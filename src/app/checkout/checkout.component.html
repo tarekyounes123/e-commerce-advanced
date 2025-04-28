@@ -1,0 +1,131 @@
+<style>
+  /* Checkout Page Styles */
+.checkout-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+
+.checkout-container h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.checkout-item {
+  display: flex;
+  justify-content: space-between;
+  background: #f9f9f9;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.checkout-item h3 {
+  font-size: 1.2rem;
+  color: #444;
+  margin: 0;
+}
+
+.checkout-item p {
+  font-size: 1.1rem;
+  color: #28a745;
+  margin: 0;
+}
+
+.checkout-summary {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.checkout-summary p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.checkout-summary .checkout-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.checkout-summary button {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.confirm-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.confirm-btn:hover {
+  background-color: #0056b3;
+}
+
+.back-btn {
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+}
+
+.back-btn:hover {
+  background-color: #ddd;
+}
+
+@media (max-width: 600px) {
+  .checkout-container {
+    margin: 20px;
+    padding: 15px;
+  }
+
+  .checkout-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .checkout-item h3,
+  .checkout-item p {
+    margin-bottom: 10px;
+  }
+
+  .checkout-summary .checkout-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .checkout-summary button {
+    width: 80%;
+    margin-bottom: 10px;
+  }
+}
+
+</style>>
+<div class="checkout-container">
+  <h2>Checkout</h2>
+
+  <!-- Checkout Items -->
+  <div *ngFor="let item of cartItems" class="checkout-item">
+    <h3>{{ item.name }}</h3>
+    <p>${{ item.price }}</p>
+  </div>
+  <!-- Checkout Summary -->
+  <div class="checkout-summary">
+    <p>Total: ${{ totalAmount }}</p>
+    <div class="checkout-buttons">
+      <button (click)="goBack()" class="back-btn">Back</button>
+      <button (click)="confirmOrder()" class="confirm-btn">Confirm Order</button>
+    </div>
+  </div>
+</div>

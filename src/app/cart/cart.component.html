@@ -1,0 +1,164 @@
+<style>
+  /* Cart Page Styles */
+.cart-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.cart-container h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item-details {
+  display: flex;
+  align-items: center;
+}
+
+.cart-item-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+.cart-item-info h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0;
+}
+
+.cart-item-info p {
+  font-size: 1rem;
+  color: #28a745;
+  margin: 0;
+}
+
+.cart-item button {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border: none;
+}
+
+.cart-item button:hover {
+  background-color: #c82333;
+}
+
+.cart-summary {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.total-amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.cart-summary-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.cart-summary-buttons button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.checkout-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.checkout-btn:hover {
+  background-color: #0056b3;
+}
+
+.go-back-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.go-back-btn:hover {
+  background-color: #5a6268;
+}
+
+@media (max-width: 768px) {
+  .cart-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .cart-item-details {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cart-item-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .cart-item-info p {
+    font-size: 1rem;
+  }
+
+  .cart-summary-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cart-summary-buttons button {
+    width: 80%;
+    margin-bottom: 10px;
+  }
+}
+
+</style>>
+<div class="cart-container">
+  <h2>Your Cart</h2>
+
+  <!-- Cart Items -->
+  <div *ngFor="let item of cartItems; let i = index" class="cart-item">
+    <div class="cart-item-details">
+      <div class="cart-item-info">
+        <h3>{{ item.name }}</h3>
+        <p>${{ item.price }}</p>
+      </div>
+    </div>
+    <button (click)="removeFromCart(i)" class="btn remove-btn">Remove</button>
+  </div>
+
+  <!-- Cart Summary -->
+  <div class="cart-summary">
+    <p class="total-amount">Total: ${{ totalAmount }}</p>
+    <div class="cart-summary-buttons">
+      <button routerLink="/checkout" class="btn checkout-btn">Proceed to Checkout</button>
+      <button (click)="goBack()" class="btn go-back-btn">Go Back</button>
+    </div>
+  </div>
+</div>
