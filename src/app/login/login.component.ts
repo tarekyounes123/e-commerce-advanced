@@ -32,8 +32,8 @@ export class LoginComponent {
     if (foundUser) {
       alert('Login successful!');
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('loggedInUser', JSON.stringify(foundUser)); // Optional: store the logged in user
-      this.router.navigate(['/product_list']);
+      localStorage.setItem('loggedInUser', JSON.stringify(foundUser)); // Store the logged-in user with their role
+      this.router.navigate(['/product_list']); // Navigate to the product list page
     } else {
       alert('Invalid credentials');
     }
@@ -45,6 +45,5 @@ export class LoginComponent {
       // If already logged in, go directly to product_list
       this.router.navigate(['/product_list']);
     }
-    // Otherwise stay on login page
   }
 }

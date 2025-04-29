@@ -10,6 +10,7 @@ import { Product } from '../product.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './product-list.component.html',
+
 })
 export class ProductListComponent implements OnInit {
   searchTerm: string = '';
@@ -22,21 +23,23 @@ export class ProductListComponent implements OnInit {
   editingProduct: boolean = false; // To know if editing
   cart: Product[] = [];
   username: string = ''; // Variable to store the logged-in user's name
+  userRole: string = 'user'; // Store the user's role (default is 'user')
 
   constructor(private productService: ProductService, private router: Router) {}
 
   ngOnInit() {
-    // Check if the user is logged in
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     if (!isLoggedIn) {
       // Redirect user to login page if not logged in
       this.router.navigate(['/login']);
     } else {
-      // Get the username from localStorage if logged in
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      this.username = user.username || 'Guest'; // Default to 'Guest' if no username
+      // Get the user from localStorage and extract their role
+      const user = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+      this.username = user.username || 'Guest';
+      this.userRole = user.role || 'user'; // Default to 'user' if no role is assigned
     }
   }
+  
 
   filterProducts() {
     return this.productService.filterProducts(this.searchTerm);

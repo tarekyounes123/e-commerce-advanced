@@ -1,5 +1,6 @@
 
 <style>
+/* product-list.component.css */
 .product-list {
   max-width: 1200px;
   margin: 0 auto;
@@ -189,7 +190,6 @@
 }
 </style>
 
-
 <!-- product-list.component.html -->
 <div class="product-list">
   <div class="top-bar">
@@ -208,22 +208,25 @@
   <!-- Product Cards -->
   <div class="product-card-container">
     <div *ngFor="let product of filterProducts()" class="product-card">
-      
+   
       <div class="product-details">
         <h3 class="product-name">{{ product.name }}</h3>
         <p class="product-description">{{ product.description }}</p>
         <p class="product-price">${{ product.price }}</p>
+        
         <div class="product-actions">
           <button (click)="addToCart(product)" class="btn cart-btn">Add to Cart</button>
-          <button (click)="editProduct(product)" class="btn edit-btn">Edit</button>
-          <button (click)="removeProduct(product.id)" class="btn remove-btn">Remove</button>
+
+          <!-- Admin Only: Edit and Remove Buttons -->
+          <button *ngIf="userRole === 'admin'" (click)="editProduct(product)" class="btn edit-btn">Edit</button>
+          <button *ngIf="userRole === 'admin'" (click)="removeProduct(product.id)" class="btn remove-btn">Remove</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Product Form -->
-  <div class="product-form">
+  <!-- Product Form (Only Visible for Admins) -->
+  <div *ngIf="userRole === 'admin'" class="product-form">
     <h3>{{ editingProduct ? 'Edit Product' : 'Add Product' }}</h3>
     <form (ngSubmit)="saveProduct()">
       <input type="text" [(ngModel)]="newProduct.name" name="name" placeholder="Product Name" required />
