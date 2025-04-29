@@ -14,32 +14,37 @@ export class LoginComponent {
   username = '';
   password = '';
 
-  constructor(private router: Router) {} // Inject Router service
+  constructor(private router: Router) {}
 
   login() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
+    const users = JSON.parse(localStorage.getItem('users') || '[]'); // Get the users array
+
     if (this.username === '' || this.password === '') {
       alert("Please fill in the inputs");
-    } else {
-      if (user.username === this.username && user.password === this.password) {
-        alert('Login successful!');
-        this.router.navigate(['/product_list']); // Navigate to product_list page
-        localStorage.setItem('isLoggedIn', 'true');
+      return;
+    }
 
-      } else {
-        alert('Invalid credentials');
-      }
+    // Find user matching username and password
+    const foundUser = users.find((user: any) => 
+      user.username === this.username && user.password === this.password
+    );
+
+    if (foundUser) {
+      alert('Login successful!');
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('loggedInUser', JSON.stringify(foundUser)); // Optional: store the logged in user
+      this.router.navigate(['/product_list']);
+    } else {
+      alert('Invalid credentials');
     }
   }
+
   ngOnInit() {
-    // Check if the user is logged in
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
-      // Redirect user to login page if not logged in
-      this.router.navigate(['/login']);
-    } else {
-     this.router.navigate(['/product_list']);
+    if (isLoggedIn === 'true') {
+      // If already logged in, go directly to product_list
+      this.router.navigate(['/product_list']);
     }
+    // Otherwise stay on login page
   }
 }

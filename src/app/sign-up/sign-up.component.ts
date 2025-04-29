@@ -20,27 +20,38 @@ export class SignUpComponent {
     // Basic field validation
     if (!this.username || !this.fullname || !this.password) {
       alert('Please fill in all fields.');
-      return; // Exit the function if any field is empty
+      return;
     }
   
-    // Password validation (e.g., password should be at least 6 characters)
+    // Password validation
     if (this.password.length < 6) {
       alert('Password must be at least 6 characters long.');
-      return; // Exit the function if password is too short
+      return;
     }
   
-    // Check if username already exists (optional but useful)
-    const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
-    if (existingUser.username === this.username) {
+    // Get existing users array from localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+  
+    // Check if username already exists
+    const existingUser = users.find((user: any) => user.username === this.username);
+    if (existingUser) {
       alert('This username is already taken.');
-      return; // Exit the function if username is already taken
+      return;
     }
   
-    // Store the new user data
-    localStorage.setItem('user', JSON.stringify({ username: this.username, fullname: this.fullname, password: this.password }));
+    // Add new user
+    users.push({
+      username: this.username,
+      fullname: this.fullname,
+      password: this.password
+    });
+  
+    // Save updated users array back to localStorage
+    localStorage.setItem('users', JSON.stringify(users));
   
     alert('Signup successful!');
-    this.router.navigate(['/login']); // Redirect to login page
+    this.router.navigate(['/login']);
   }
+  
   
 }
