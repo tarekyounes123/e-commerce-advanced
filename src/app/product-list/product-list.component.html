@@ -1,238 +1,243 @@
-
-<style>
-/* product-list.component.css */
-.product-list {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-}
-
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #ddd;
-  padding-bottom: 10px;
-}
-
-.top-bar h2 {
-  font-size: 1.8rem;
-  color: #333;
-}
-
-.top-buttons button {
-  margin-left: 10px;
-  padding: 8px 20px;
-  border-radius: 5px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.top-buttons .logout-btn {
-  background-color: #f44336;
-  color: white;
-  border: none;
-}
-
-.top-buttons .logout-btn:hover {
-  background-color: #d32f2f;
-}
-
-.top-buttons .cart-btn {
-  background-color: #2196F3;
-  color: white;
-  border: none;
-}
-
-.top-buttons .cart-btn:hover {
-  background-color: #1976D2;
-}
-
-.search-container {
-  margin-bottom: 30px;
-  display: flex;
-  justify-content: center;
-}
-
-.search-input {
-  padding: 10px;
-  width: 50%;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  font-size: 1rem;
-}
-
-.product-card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-around;
-}
-
-.product-card {
-  background-color: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  width: 250px;
-  padding: 15px;
-  transition: transform 0.3s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-}
-
-.product-image img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.product-details {
-  margin-top: 10px;
-  text-align: center;
-}
-
-.product-name {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-}
-
-.product-description {
-  font-size: 1rem;
-  color: #555;
-  margin-top: 10px;
-}
-
-.product-price {
-  font-size: 1.2rem;
-  color: #28a745;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.product-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: space-around;
-}
-
-.product-actions button {
-  background-color: #007bff;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  border: none;
-}
-
-.product-actions button:hover {
-  background-color: #0056b3;
-}
-
-.product-form {
-  margin-top: 50px;
-  background-color: #f4f4f4;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.product-form h3 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.product-form input,
-.product-form textarea {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1rem;
-}
-
-.product-form button {
-  width: 100%;
-  padding: 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.product-form button:hover {
-  background-color: #0056b3;
-}
-
-@media (max-width: 768px) {
-  .product-card-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .search-input {
-    width: 80%;
-  }
-
-  .top-bar h2 {
-    font-size: 1.5rem;
-  }
-}
-</style>
-
-<!-- product-list.component.html -->
-<div class="product-list">
-  <div class="top-bar">
-    <h2>Welcome, {{ username }}! - Product List</h2>
-    <div class="top-buttons">
-      <button (click)="logout()" class="btn logout-btn">Logout</button>
-      <button (click)="viewcart()" class="btn cart-btn">Cart</button>
+<div class="page-container">
+  <div class="header">
+    <h2>Welcome, {{ username }}</h2>
+    <div class="actions">
+      <input [(ngModel)]="searchTerm" placeholder="Search products..." />
+      <button (click)="viewcart()">🛒 View Cart</button>
+      <button (click)="logout()">Logout</button>
     </div>
   </div>
 
-  <!-- Search Container -->
-  <div class="search-container">
-    <input type="text" [(ngModel)]="searchTerm" placeholder="Search products..." class="search-input"/>
+  <div *ngIf="userRole === 'admin'" class="add-form">
+    <h3>Add Product</h3>
+    <input [(ngModel)]="newProduct.name" placeholder="Name" />
+    <input [(ngModel)]="newProduct.description" placeholder="Description" />
+    <input type="number" [(ngModel)]="newProduct.price" placeholder="Price" />
+    <button (click)="saveProduct()">Save</button>
   </div>
 
-  <!-- Product Cards -->
-  <div class="product-card-container">
+  <div class="product-grid">
     <div *ngFor="let product of filterProducts()" class="product-card">
-   
-      <div class="product-details">
-        <h3 class="product-name">{{ product.name }}</h3>
-        <p class="product-description">{{ product.description }}</p>
-        <p class="product-price">${{ product.price }}</p>
-        
-        <div class="product-actions">
-          <button (click)="addToCart(product)" class="btn cart-btn">Add to Cart</button>
+      <h3>{{ product.name }}</h3>
+      <p class="desc">{{ product.description }}</p>
+      <p class="price">${{ product.price }}</p>
+      <button class="btn add" (click)="addToCart(product)">Add to Cart</button>
 
-          <!-- Admin Only: Edit and Remove Buttons -->
-          <button *ngIf="userRole === 'admin'" (click)="editProduct(product)" class="btn edit-btn">Edit</button>
-          <button *ngIf="userRole === 'admin'" (click)="removeProduct(product.id)" class="btn remove-btn">Remove</button>
-        </div>
+      <div *ngIf="userRole === 'admin'" class="admin-buttons">
+        <button class="btn edit" (click)="openEditModal(product)">Edit</button>
+        <button class="btn delete" (click)="removeProduct(product.id)">Delete</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Product Form (Only Visible for Admins) -->
-  <div *ngIf="userRole === 'admin'" class="product-form">
-    <h3>{{ editingProduct ? 'Edit Product' : 'Add Product' }}</h3>
-    <form (ngSubmit)="saveProduct()">
-      <input type="text" [(ngModel)]="newProduct.name" name="name" placeholder="Product Name" required />
-      <textarea [(ngModel)]="newProduct.description" name="description" placeholder="Description" required></textarea>
-      <input type="number" [(ngModel)]="newProduct.price" name="price" placeholder="Price" required />
-      <button type="submit" class="btn save-btn">{{ editingProduct ? 'Update' : 'Add' }}</button>
-    </form>
+<!-- Edit Modal -->
+<div class="modal-overlay" *ngIf="editingProduct">
+  <div class="modal">
+    <h3>Edit Product</h3>
+    <input [(ngModel)]="newProduct.name" placeholder="Name" />
+    <input [(ngModel)]="newProduct.description" placeholder="Description" />
+    <input type="number" [(ngModel)]="newProduct.price" placeholder="Price" />
+    <div class="modal-buttons">
+      <button class="btn save" (click)="saveProduct()">Save</button>
+      <button class="btn cancel" (click)="closeModal()">Cancel</button>
+    </div>
   </div>
 </div>
+
+<style>
+  .page-container {
+    padding: 2rem;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .actions input {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  .actions button {
+    padding: 0.5rem 0.8rem;
+    border: none;
+    background-color: #3498db;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .actions button:hover {
+    background-color: #2a80b9;
+  }
+
+  .add-form {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .add-form input {
+    display: block;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  .add-form button {
+    background-color: #2ecc71;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .add-form button:hover {
+    background-color: #27ae60;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .product-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: transform 0.2s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .desc {
+    color: #777;
+    margin: 0.5rem 0;
+  }
+
+  .price {
+    font-weight: bold;
+    color: #27ae60;
+    margin-bottom: 1rem;
+  }
+
+  .btn {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn.add {
+    background-color: #2980b9;
+    color: white;
+  }
+
+  .btn.add:hover {
+    background-color: #2471a3;
+  }
+
+  .admin-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .btn.edit {
+    background-color: #f39c12;
+    color: white;
+  }
+
+  .btn.edit:hover {
+    background-color: #d68910;
+  }
+
+  .btn.delete {
+    background-color: #e74c3c;
+    color: white;
+  }
+
+  .btn.delete:hover {
+    background-color: #c0392b;
+  }
+
+  /* Modal styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .modal input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .btn.save {
+    background-color: #2ecc71;
+    color: white;
+  }
+
+  .btn.save:hover {
+    background-color: #27ae60;
+  }
+
+  .btn.cancel {
+    background-color: #aaa;
+    color: white;
+  }
+
+  .btn.cancel:hover {
+    background-color: #888;
+  }
+</style>

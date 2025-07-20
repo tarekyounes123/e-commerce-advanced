@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, effect, signal, computed, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -8,44 +8,85 @@ import { Router, RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './sign-up.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: SignUpComponent,
+      multi: true
+    }
+  ]
 })
-export class SignUpComponent {
-  username = '';
-  password = '';
-  fullname = '';
-  role = 'user'; // Default role
+export class SignUpComponent implements ControlValueAccessor {
+  fullname = signal('');
+  username = signal('');
+  password = signal('');
+  role = signal('user');
 
-  constructor(private router: Router) {}
+  isFormValid = computed(() =>
+    this.fullname().trim().length > 0 &&
+    this.username().trim().length > 0 &&
+    this.password().length >= 6 &&
+    (this.role() === 'user' || this.role() === 'admin')
+  );
+
+  onChange = (_: any) => {};
+  onTouched = () => {};
+
+  @ViewChild('usernameInput', { static: true }) usernameInput!: ElementRef<HTMLInputElement>;
+
+  constructor(private router: Router) {
+    effect(() => {
+      this.onChange({
+        fullname: this.fullname(),
+        username: this.username(),
+        password: this.password(),
+        role: this.role()
+      });
+    });
+  }
+
+  writeValue(obj: any): void {
+    if (obj) {
+      this.fullname.set(obj.fullname || '');
+      this.username.set(obj.username || '');
+      this.password.set(obj.password || '');
+      this.role.set(obj.role || 'user');
+    }
+  }
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+  setDisabledState?(isDisabled: boolean): void {
+    if (this.usernameInput) {
+      this.usernameInput.nativeElement.disabled = isDisabled;
+    }
+  }
 
   signup() {
-    // Basic field validation
-    if (!this.username || !this.fullname || !this.password || !this.role) {
-      alert('Please fill in all fields.');
-      return;
-    }
-
-    if (this.password.length < 6) {
-      alert('Password must be at least 6 characters long.');
+    if (!this.isFormValid()) {
+      alert('Please fill all fields correctly. Password must be at least 6 characters.');
       return;
     }
 
     const users = JSON.parse(localStorage.getItem('users') || '[]');
 
-    const existingUser = users.find((user: any) => user.username === this.username);
-    if (existingUser) {
-      alert('This username is already taken.');
+    if (users.find((u: any) => u.username === this.username())) {
+      alert('Username is already taken.');
       return;
     }
 
     users.push({
-      username: this.username,
-      fullname: this.fullname,
-      password: this.password,
-      role: this.role
+      fullname: this.fullname(),
+      username: this.username(),
+      password: this.password(),
+      role: this.role()
     });
 
     localStorage.setItem('users', JSON.stringify(users));
-
     alert('Signup successful!');
     this.router.navigate(['/login']);
   }
