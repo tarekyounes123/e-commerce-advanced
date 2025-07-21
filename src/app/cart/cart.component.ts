@@ -1,45 +1,58 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  computed,
+  effect
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+
 
 @Component({
   selector: 'app-cart',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './cart.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CartComponent implements OnInit {
-  cartItems: any[] = [];
+  @ViewChild('cartSummaryRef') cartSummaryRef!: ElementRef;
+
+  private storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cartItems = signal<any[]>(this.storedCart);
+
+  totalAmount = computed(() =>
+    this.cartItems().reduce((total, item) => total + item.price, 0)
+  );
 
   constructor() {
-    // Load cart from localStorage on initialization
-    this.cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+    effect(() => {
+      // Sync changes with localStorage
+      localStorage.setItem('cart', JSON.stringify(this.cartItems()));
+    });
   }
 
-  ngOnInit() {
-    // Check if the user is logged in
+  ngOnInit(): void {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     if (!isLoggedIn) {
-      // Redirect user to login page if not logged in
-      window.location.href = '/login'; // <<< simple page redirect
+      window.location.href = '/login';
     }
   }
 
-  removeFromCart(index: number) {
-    // Remove the item from the cart
-    this.cartItems.splice(index, 1);
-    
-    // Update localStorage with the modified cart
-    localStorage.setItem('cart', JSON.stringify(this.cartItems));
+  removeFromCart(index: number): void {
+    this.cartItems.update((items) => {
+      const updated = [...items];
+      updated.splice(index, 1);
+      return updated;
+    });
   }
 
-  get totalAmount() {
-    // Calculate total amount for all items in the cart
-    return this.cartItems.reduce((total, item) => total + item.price, 0);
-  }
-
-  goBack() {
-    // Go back to the previous page
+  goBack(): void {
     window.history.back();
   }
 }

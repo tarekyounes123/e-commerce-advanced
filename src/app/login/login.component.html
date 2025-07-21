@@ -168,7 +168,6 @@
     text-decoration: underline;
   }
 </style>
-
 <div class="login-container">
   <div class="login-card">
     <h1 class="login-title">Welcome Back</h1>
@@ -180,11 +179,13 @@
         <input
           id="username"
           type="text"
-          [(ngModel)]="username"
+          [value]="username()"
+          (input)="username.set($any($event.target).value)"
           name="username"
           placeholder="Enter your username"
           autocomplete="username"
           required
+          [disabled]="isDisabled()"
         />
       </div>
 
@@ -193,16 +194,18 @@
         <input
           id="password"
           type="password"
-          [(ngModel)]="password"
+          [value]="password()"
+          (input)="password.set($any($event.target).value)"
           name="password"
           placeholder="Enter your password"
           autocomplete="current-password"
           required
+          [disabled]="isDisabled()"
         />
       </div>
 
-      <div *ngIf="loginError" class="error-message">
-        {{ loginError }}
+      <div *ngIf="loginError()" class="error-message">
+        {{ loginError() }}
       </div>
 
       <button
@@ -214,7 +217,6 @@
       </button>
     </form>
 
-    <!-- Signup link -->
     <p class="signup-text">
       Don't have an account?
       <a (click)="goToSignup()">Sign up</a>
@@ -236,3 +238,4 @@
     </div>
   </div>
 </div>
+

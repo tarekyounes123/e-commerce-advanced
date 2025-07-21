@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { RouterModule, Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -17,23 +18,28 @@ import { RouterModule, Router } from '@angular/router';
   ]
 })
 export class LoginComponent implements ControlValueAccessor {
-  username = '';
-  password = '';
+  username = signal('');
+  password = signal('');
+  loginError = signal<string | null>(null);
+  isDisabled = signal(false);
 
   // For ControlValueAccessor
   private onChange: (value: any) => void = () => {};
   private onTouched: () => void = () => {};
-  private isDisabled = false;
 
-  loginError: string | null = null;
+  constructor(private router: Router) {
+    effect(() => {
+      this.onChange({
+        username: this.username(),
+        password: this.password()
+      });
+    });
+  }
 
-  constructor(private router: Router) {}
-
-  // ControlValueAccessor methods
   writeValue(value: any): void {
     if (value) {
-      this.username = value.username || '';
-      this.password = value.password || '';
+      this.username.set(value.username || '');
+      this.password.set(value.password || '');
     }
   }
 
@@ -46,15 +52,14 @@ export class LoginComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.isDisabled = isDisabled;
+    this.isDisabled.set(isDisabled);
   }
 
-  // Custom login method
   login() {
     this.onTouched();
 
-    if (this.username.trim() === '' || this.password.trim() === '') {
-      this.loginError = "Please fill in all fields.";
+    if (this.username().trim() === '' || this.password().trim() === '') {
+      this.loginError.set("Please fill in all fields.");
       this.onChange(null);
       return;
     }
@@ -62,24 +67,23 @@ export class LoginComponent implements ControlValueAccessor {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
 
     const foundUser = users.find((user: any) =>
-      user.username === this.username && user.password === this.password
+      user.username === this.username() && user.password === this.password()
     );
 
     if (foundUser) {
-      this.loginError = null;
+      this.loginError.set(null);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('loggedInUser', JSON.stringify(foundUser));
-      this.onChange({ username: this.username, password: this.password });
+      this.onChange({ username: this.username(), password: this.password() });
       this.router.navigate(['/product_list']);
     } else {
-      this.loginError = 'Invalid username or password.';
+      this.loginError.set('Invalid username or password.');
       this.onChange(null);
     }
   }
 
-  // Used to disable the button when inputs are empty or disabled
   get isLoginEnabled(): boolean {
-    return !this.isDisabled && this.username.trim() !== '' && this.password.trim() !== '';
+    return !this.isDisabled() && this.username().trim() !== '' && this.password().trim() !== '';
   }
 
   ngOnInit() {
@@ -88,7 +92,8 @@ export class LoginComponent implements ControlValueAccessor {
       this.router.navigate(['/product_list']);
     }
   }
-    goToSignup() {
+
+  goToSignup() {
     this.router.navigate(['/signup']);
   }
 }
